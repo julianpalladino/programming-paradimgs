@@ -17,7 +17,7 @@ primo x = [1 | y <- [2..(x-1)], mod x y == 0] == []
 
 partir :: [a] -> [([a],[a])]
 partir ls = [ (take (fromIntegral cant) ls, drop (fromIntegral cant) ls) | cant <- [0.. longitud]]
-	where longitud = (toInteger (length ls))
+  where longitud = (toInteger (length ls))
 
 {- ----------------------------------------------------------------------- ej 9 I -}
 
@@ -51,6 +51,18 @@ operaciones = (+):((-):operaciones)
 
 sumaAltInverso :: [Integer] -> Integer
 sumaAltInverso ls = foldr (\x y -> (snd x) y (fst x)) 0 (zip ls operaciones)
+
+{- ----------------------------------------------------------------------- ej 22 -}
+data RoseTree a = Rose a [RoseTree a] deriving(Show)
+
+foldrt :: (a -> [b] -> b) -> (RoseTree a) -> b
+foldrt frec (Rose x ls) = frec x (map (foldrt frec) ls)
+
+roseLeafs :: Eq(a) => RoseTree a -> [a]
+roseLeafs = foldrt (\x rec -> if ([] == rec) then [x] else (concat rec))
+
+distancias :: RoseTree a -> RoseTree Integer
+distancais = foldrt (\x rec -> if (rec == 0) then )
 
 
 {- ----------------------------------------------------------------------- ej take -}
@@ -97,15 +109,15 @@ listaunos = 1 : listaunos
 sum2 = a+b+c
 sum1 = b+c
 
-01	sum = 1, a = 0
-10	sum = 1, a = 1
+01  sum = 1, a = 0
+10  sum = 1, a = 1
 
-02	sum = 2, a = 0
-11	sum = 2, a = 1
-20	sum = 2, a = 2
+02  sum = 2, a = 0
+11  sum = 2, a = 1
+20  sum = 2, a = 2
 
-03	
-12	
-21	
-30	
+03  
+12  
+21  
+30  
 -}
