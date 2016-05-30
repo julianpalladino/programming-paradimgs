@@ -52,8 +52,56 @@ operaciones = (+):((-):operaciones)
 sumaAltInverso :: [Integer] -> Integer
 sumaAltInverso ls = foldr (\x y -> (snd x) y (fst x)) 0 (zip ls operaciones)
 
+{- ----------------------------------------------------------------------- ej 20 -}
+
+data AHD tInterno tHoja = Hoja tHoja
+                          | Rama tInterno (AHD tInterno tHoja)
+                          | Bin (AHD tInterno tHoja) tInterno (AHD tInterno tHoja) deriving(Show)
+
+foldAHD :: (tHoja -> b) -> (tInterno -> b -> b) -> (b -> tInterno -> b -> b) -> AHD tInterno tHoja -> b
+foldAHD fHoja fRama fBin ahd = case ahd of Hoja elemHoja -> (fHoja elemHoja)
+                                           Rama elemInterno ahdInterno -> (fRama elemInterno (rec ahdInterno))
+                                           Bin ahdInternoL elemInterno2 ahdInternoR -> (fBin (rec ahdInternoL) elemInterno2 (rec ahdInternoR))
+  where rec = foldAHD fHoja fRama fBin
+
+
+mapAHD :: (a -> b) -> (c -> d) -> AHD a c -> AHD b d
+mapAHD fElemInterno fElemHoja ahd = foldAHD fRecHoja fRecRama fRecBin ahd
+  where fRecHoja = (\h -> Hoja (fElemHoja h))
+        fRecRama = (\elemInt rec -> Rama (fElemInterno elemInt) rec)
+        fRecBin = (\recL elemInt recR -> Bin recL (fElemInterno elemInt) recR)
+
+
+dfsAHD :: AHD tInterno tHoja -> [tInterno]
+dfsAHD ahd = foldAHD fRecHoja fRecRama fRecBin ahd
+  where fRecHoja = (\h -> [])
+        fRecRama = (\elemInt rec -> elemInt:rec)
+        fRecBin = (\recL elemInt recR -> (elemInt:recL)++recR)
+
+analizar :: Eq tHoja => AHD tInterno tHoja -> Either (tHoja -> Integer) [tInterno]
+analizar ahd = if (equalAmountOfLeafs ahd) then (Right (dfsAHD ahd)) else (Left (countAparitionsAHD ahd))
+
+equalAmountOfLeafs :: Eq tHoja => AHD tInterno tHoja -> Bool
+equalAmountOfLeafs ahd = (foldr1 (&&) ((map (== head counts) counts)))
+  where counts = [(countAparitions leafList x)  | x <- leafList]
+        leafList = (leafsAHD ahd)
+
+countAparitionsAHD :: Eq tHoja => AHD tInterno tHoja -> tHoja -> Integer
+countAparitionsAHD ahd = countAparitions (leafsAHD ahd)
+
+countAparitions :: Eq a => [a] -> a -> Integer
+countAparitions xs x = foldr (\y rec -> if x == y then rec+1 else rec) 0 xs
+
+leafsAHD :: AHD tInterno tHoja -> [tHoja]
+leafsAHD ahd = foldAHD fRecHoja fRecRama fRecBin ahd
+  where fRecHoja = (\h-> [h])
+        fRecRama = (\_ rec -> rec)
+        fRecBin = (\recL _ recR -> recL ++ recR)
+
+
+
 {- ----------------------------------------------------------------------- ej 22 -}
-data RoseTree a = Rose a [RoseTree a] deriving(Show)
+data RoseTree a = Rose a [RoseTree a] deriving(Show, Eq)
 
 foldrt :: (a -> [b] -> b) -> (RoseTree a) -> b
 foldrt frec (Rose x ls) = frec x (map (foldrt frec) ls)
@@ -61,9 +109,29 @@ foldrt frec (Rose x ls) = frec x (map (foldrt frec) ls)
 roseLeafs :: Eq(a) => RoseTree a -> [a]
 roseLeafs = foldrt (\x rec -> if ([] == rec) then [x] else (concat rec))
 
-distancias :: RoseTree a -> RoseTree Integer
-distancais = foldrt (\x rec -> if (rec == 0) then )
+elemRose :: RoseTree a -> a
+elemRose (Rose x _) = x
 
+{-distancias :: RoseTree a -> RoseTree Integer
+distancias = foldrt (\x rec -> if ([] == rec) then (Rose 0 []) else (Rose ((elemRose (head rec))+1) [])) ??
+
+
+distanciasInversas :: RoseTree a -> RoseTree Integer
+distanciasInversas = foldrt (\x rec -> (if ([] == rec) then (Rose 0 []) else (Rose ((maxRoseElem rec) + 1) rec)))
+  where maxRoseElem ls = maximum (map elemRose ls)
+  
+distancias :: RoseTree a -> RoseTree Integer
+distancias rt = foldrt (\x rec -> (Rose (h-x) rec)) (distanciasInversas rt)
+  where h = altura rt -}
+
+altura :: RoseTree a -> Integer
+altura = foldrt (\_ rec -> (if (rec == []) then 0 else (maximum rec)+1))
+
+numberOfNodes :: RoseTree a -> Integer
+numberOfNodes = foldrt (\_ rec -> (sum rec) +1)
+
+mirror :: RoseTree a -> RoseTree a
+mirror = foldrt (\x rec -> Rose x (reverse rec))
 
 {- ----------------------------------------------------------------------- ej take -}
 

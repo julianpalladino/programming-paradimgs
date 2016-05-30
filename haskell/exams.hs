@@ -36,5 +36,19 @@ aRoseCarpeta :: Nombre -> RoseTree Nombre -> RoseTree Nombre -> RoseTree Nombre
 aRoseCarpeta n (Rose nRose1 lsRose1) (Rose nRose2 lsRose2) = Rose "/" ([Rose n lsRose1]++lsRose2)
 
 
-{- ----------------------------------------------------------------------- 2016-1c-1p -}
+{- ----------------------------------------------------------------------- 2015-2c-1p -}
+
+data ConcList a = Nil | Singleton a | Append (ConcList a) (ConcList a) deriving(Show)
+
+foldCL :: b -> (a -> b) -> (b -> b -> b) -> ConcList a -> b
+foldCL fDef fSing fAppend cl = case cl of Nil -> fDef
+                                          Singleton x -> fSing x
+                                          Append cl1 cl2 -> fAppend (rec cl1) (rec cl2)
+  where rec = foldCL fDef fSing fAppend
+
+longitud :: ConcList a -> Integer
+longitud = foldCL 0 (\_ -> 1) (\rec1 rec2 -> rec1+rec2)
+
+duplicarApariciones :: ConcList a -> ConcList a
+duplicarApariciones = foldCL Nil (\x -> (Append (Singleton x) (Singleton x))) (\rec1 rec2 -> (Append rec1 rec2))
 
