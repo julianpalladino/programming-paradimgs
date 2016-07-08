@@ -52,3 +52,36 @@ longitud = foldCL 0 (\_ -> 1) (\rec1 rec2 -> rec1+rec2)
 duplicarApariciones :: ConcList a -> ConcList a
 duplicarApariciones = foldCL Nil (\x -> (Append (Singleton x) (Singleton x))) (\rec1 rec2 -> (Append rec1 rec2))
 
+
+
+{- ----------------------------------------------------------------------- 2015-1c-1p -}
+
+{- div es division entera (redondea para abajo) -}
+entrelazar :: [a] -> [a] -> [a]
+entrelazar lsa lsb = [if (mod i 2 == 0) then lsa!!(div i 2) else lsb!!(div i 2) | i <- [0..] ]
+
+unos :: [Integer]
+unos = [1,2,3,4,5]++unos
+
+ceros :: [Integer]
+ceros = 0:ceros
+
+merge :: [a] -> [a] -> [a]
+merge xs ys = concatMap (\(x,y) -> [x,y]) (zip xs ys)
+
+merge2 :: [a] -> [a] -> [a]
+merge2 xs ys = concat(map(\(x,y) -> [x,y]) (zip xs ys))
+
+duplicarAparicionesL :: [a] -> [a]
+duplicarAparicionesL xs = merge xs xs
+
+dynprog :: ([a] -> a) -> a -> Integer -> [a]
+dynprog _ x 0 = [x]
+dynprog f x n | n > 0 = let rec = dynprog f x (n-1) in (f rec):rec
+
+dividirPor :: Integer -> Integer -> Integer
+dividirPor d | d > 0 = head . (dynprog f 0) where
+	f = \res -> if toInteger(length res) < d then 0 else 1 + (res!!fromIntegral(d-1))
+
+{-factorial :: Integer -> Integer
+factorial n = head . (dynprog (\res ->1 * res!!(n-1)) 0)-}

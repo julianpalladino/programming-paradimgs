@@ -54,7 +54,7 @@ sumaAltInverso ls = foldr (\x y -> (snd x) y (fst x)) 0 (zip ls operaciones)
 
 {- ----------------------------------------------------------------------- ej 20 -}
 
-data AHD tInterno tHoja = Hoja tHoja
+{-data AHD tInterno tHoja = Hoja tHoja
                           | Rama tInterno (AHD tInterno tHoja)
                           | Bin (AHD tInterno tHoja) tInterno (AHD tInterno tHoja) deriving(Show)
 
@@ -98,6 +98,24 @@ leafsAHD ahd = foldAHD fRecHoja fRecRama fRecBin ahd
         fRecRama = (\_ rec -> rec)
         fRecBin = (\recL _ recR -> recL ++ recR)
 
+-}
+
+{- ----------------------------------------------------------------------- ej 21 -}
+data AB a = Nil | Bin (AB a) a (AB a)
+foldab :: b -> (b -> a -> b -> b) -> (AB a) -> b
+foldab fnil fbin arbol = case arbol of Nil -> fnil
+                                       Bin izq elem der -> fbin (rec izq) elem (rec der)
+  where rec = foldab fnil fbin
+
+esNil :: AB a -> Bool
+esNil Nil = True
+esNil (Bin _ _ _) = False
+
+alturaab :: AB a -> Integer
+alturaab = foldab 0 (\altura1 _ altura2 -> (if altura1 > altura2 then (altura1+1) else (altura2+1)))
+
+mismaEstructura :: AB a -> AB b -> Bool
+mismaEstructura
 
 
 {- ----------------------------------------------------------------------- ej 22 -}
@@ -112,17 +130,9 @@ roseLeafs = foldrt (\x rec -> if ([] == rec) then [x] else (concat rec))
 elemRose :: RoseTree a -> a
 elemRose (Rose x _) = x
 
-{-distancias :: RoseTree a -> RoseTree Integer
-distancias = foldrt (\x rec -> if ([] == rec) then (Rose 0 []) else (Rose ((elemRose (head rec))+1) [])) ??
-
-
-distanciasInversas :: RoseTree a -> RoseTree Integer
-distanciasInversas = foldrt (\x rec -> (if ([] == rec) then (Rose 0 []) else (Rose ((maxRoseElem rec) + 1) rec)))
-  where maxRoseElem ls = maximum (map elemRose ls)
-  
 distancias :: RoseTree a -> RoseTree Integer
-distancias rt = foldrt (\x rec -> (Rose (h-x) rec)) (distanciasInversas rt)
-  where h = altura rt -}
+distancias = foldrt (\x rec -> if (rec == []) then Rose 0 [] else Rose 0 (map (sumarUno) rec))
+  where sumarUno = foldrt (\x rec -> Rose (x+1) rec)
 
 altura :: RoseTree a -> Integer
 altura = foldrt (\_ rec -> (if (rec == []) then 0 else (maximum rec)+1))
