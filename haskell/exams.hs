@@ -80,8 +80,17 @@ dynprog _ x 0 = [x]
 dynprog f x n | n > 0 = let rec = dynprog f x (n-1) in (f rec):rec
 
 dividirPor :: Integer -> Integer -> Integer
-dividirPor d | d > 0 = head . (dynprog f 0) where
+dividirPor d | d > 0 = head .(dynprog f 0) where
 	f = \res -> if toInteger(length res) < d then 0 else 1 + (res!!fromIntegral(d-1))
 
-{-factorial :: Integer -> Integer
-factorial n = head . (dynprog (\res ->1 * res!!(n-1)) 0)-}
+factorial :: Integer -> Integer
+factorial n = head (dynprog f 1 n) where
+	f = (\xs -> if (toInteger (length xs)) < 2 then 1 else (toInteger(length xs)) * (head xs))
+
+fibonacci :: Integer -> [Integer]
+fibonacci n = (dynprog f 1 n) where
+	f = \xs -> if ((toInteger (length xs)) < 2) then 1 else ((head xs) + (head (tail xs)))
+ 
+
+prueba :: Integer -> Integer -> Integer
+prueba a = head . ((\x y -> [x + y, x - y]) a)
