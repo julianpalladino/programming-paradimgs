@@ -5,6 +5,10 @@ pitagoricas :: [(Integer, Integer, Integer)]
 pitagoricas = [(sum2-sum1, sum1-c, c) | sum2 <- [1..], sum1 <-[1..sum2], c <-[1..sum1], (sum2-sum1)^2 + (sum1-c)^2 == c^2]
 
 
+listasQueSuman :: Integer -> [[Integer]]
+listasQueSuman 0 = [[]]
+listasQueSuman n = [x: xs | x <- [1..n], xs <- listasQueSuman(n-x)]
+
 {- ----------------------------------------------------------------------- ej 5 -}
 
 primos :: [Integer] 
